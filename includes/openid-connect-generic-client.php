@@ -125,7 +125,7 @@ class OpenID_Connect_Generic_Client {
 	 * @param string                               $endpoint_login    	@see OpenID_Connect_Generic_Option_Settings::endpoint_login for description.
 	 * @param string                               $endpoint_userinfo 	@see OpenID_Connect_Generic_Option_Settings::endpoint_userinfo for description.
 	 * @param string                               $endpoint_token    	@see OpenID_Connect_Generic_Option_Settings::endpoint_token for description.
-	 * @param string                               $endpoint_introspect @see OpenID_Connect_Generic_Option_Settings::endpoint_introspect for description.
+	 * @param string                               $endpoint_introspect	@see OpenID_Connect_Generic_Option_Settings::endpoint_introspect for description.
 	 * @param string                               $redirect_uri      	@see OpenID_Connect_Generic_Option_Settings::redirect_uri for description.
 	 * @param string                               $acr_values        	@see OpenID_Connect_Generic_Option_Settings::acr_values for description.
 	 * @param int                                  $state_time_limit  	@see OpenID_Connect_Generic_Option_Settings::state_time_limit for description.
@@ -285,9 +285,9 @@ class OpenID_Connect_Generic_Client {
 	public function introspect_token( $access_token ) {
 		$request = array(
 			'body' => array(
-				'token' 			=> $access_token,
+				'token'				=> $access_token,
 				'client_id'			=> $this->client_id,	
-				'client_secret' 	=> $this->client_secret,
+				'client_secret'		=> $this->client_secret,
 				'token_type_hint'	=> "access_token",
 			),
 		);
