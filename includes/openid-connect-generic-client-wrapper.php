@@ -293,7 +293,6 @@ class OpenID_Connect_Generic_Client_Wrapper {
 		}
 
 		$token_result = $this->client->request_new_tokens( $refresh_token );
-
 		if ( is_wp_error( $token_result ) ) {
 			wp_logout();
 			$this->error_redirect( $token_result );
@@ -694,10 +693,12 @@ class OpenID_Connect_Generic_Client_Wrapper {
 		if ( ! $this->settings->token_refresh_enable ) {
 			return;
 		}
+
+		$introspect_response = $this->client->get_token_response($this->client->introspect_token( $token_response["access_token"] ));
+		
 		$session = $manager->get( $token );
-		$now = time();
 		$session[ $this->cookie_token_refresh_key ] = array(
-			'next_access_token_refresh_time' => $token_response['expires_in'] + $now,
+			'next_access_token_refresh_time' => $introspect_response["exp"],
 			'refresh_token' => isset( $token_response['refresh_token'] ) ? $token_response['refresh_token'] : false,
 			'refresh_expires' => false,
 		);
@@ -705,7 +706,7 @@ class OpenID_Connect_Generic_Client_Wrapper {
 			$refresh_expires_in = $token_response['refresh_expires_in'];
 			if ( $refresh_expires_in > 0 ) {
 				// Leave enough time for the actual refresh request to go through.
-				$refresh_expires = $now + $refresh_expires_in - 5;
+				$refresh_expires = time() + $refresh_expires_in - 5;
 				$session[ $this->cookie_token_refresh_key ]['refresh_expires'] = $refresh_expires;
 			}
 		}
