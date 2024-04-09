@@ -56,6 +56,15 @@ class OpenID_Connect_Generic_Client {
 	private $endpoint_login;
 
 	/**
+	 * The OIDC/oAuth authorization endpoint URL.
+	 *
+	 * @see OpenID_Connect_Generic_Option_Settings::endpoint_introspect
+	 *
+	 * @var string
+	 */
+	private $endpoint_introspect;
+
+	/**
 	 * The OIDC/oAuth User Information endpoint URL.
 	 *
 	 * @see OpenID_Connect_Generic_Option_Settings::endpoint_userinfo
@@ -110,24 +119,26 @@ class OpenID_Connect_Generic_Client {
 	/**
 	 * Client constructor.
 	 *
-	 * @param string                               $client_id         @see OpenID_Connect_Generic_Option_Settings::client_id for description.
-	 * @param string                               $client_secret     @see OpenID_Connect_Generic_Option_Settings::client_secret for description.
-	 * @param string                               $scope             @see OpenID_Connect_Generic_Option_Settings::scope for description.
-	 * @param string                               $endpoint_login    @see OpenID_Connect_Generic_Option_Settings::endpoint_login for description.
-	 * @param string                               $endpoint_userinfo @see OpenID_Connect_Generic_Option_Settings::endpoint_userinfo for description.
-	 * @param string                               $endpoint_token    @see OpenID_Connect_Generic_Option_Settings::endpoint_token for description.
-	 * @param string                               $redirect_uri      @see OpenID_Connect_Generic_Option_Settings::redirect_uri for description.
-	 * @param string                               $acr_values        @see OpenID_Connect_Generic_Option_Settings::acr_values for description.
-	 * @param int                                  $state_time_limit  @see OpenID_Connect_Generic_Option_Settings::state_time_limit for description.
-	 * @param OpenID_Connect_Generic_Option_Logger $logger            The plugin logging object instance.
+	 * @param string                               $client_id         	@see OpenID_Connect_Generic_Option_Settings::client_id for description.
+	 * @param string                               $client_secret     	@see OpenID_Connect_Generic_Option_Settings::client_secret for description.
+	 * @param string                               $scope             	@see OpenID_Connect_Generic_Option_Settings::scope for description.
+	 * @param string                               $endpoint_login    	@see OpenID_Connect_Generic_Option_Settings::endpoint_login for description.
+	 * @param string                               $endpoint_userinfo 	@see OpenID_Connect_Generic_Option_Settings::endpoint_userinfo for description.
+	 * @param string                               $endpoint_token    	@see OpenID_Connect_Generic_Option_Settings::endpoint_token for description.
+	 * @param string                               $endpoint_introspect	@see OpenID_Connect_Generic_Option_Settings::endpoint_introspect for description.
+	 * @param string                               $redirect_uri      	@see OpenID_Connect_Generic_Option_Settings::redirect_uri for description.
+	 * @param string                               $acr_values        	@see OpenID_Connect_Generic_Option_Settings::acr_values for description.
+	 * @param int                                  $state_time_limit  	@see OpenID_Connect_Generic_Option_Settings::state_time_limit for description.
+	 * @param OpenID_Connect_Generic_Option_Logger $logger            	The plugin logging object instance.
 	 */
-	public function __construct( $client_id, $client_secret, $scope, $endpoint_login, $endpoint_userinfo, $endpoint_token, $redirect_uri, $acr_values, $state_time_limit, $logger ) {
+	public function __construct( $client_id, $client_secret, $scope, $endpoint_login, $endpoint_userinfo, $endpoint_token, $endpoint_introspect, $redirect_uri, $acr_values, $state_time_limit, $logger ) {
 		$this->client_id = $client_id;
 		$this->client_secret = $client_secret;
 		$this->scope = $scope;
 		$this->endpoint_login = $endpoint_login;
 		$this->endpoint_userinfo = $endpoint_userinfo;
 		$this->endpoint_token = $endpoint_token;
+		$this->endpoint_introspect = $endpoint_introspect;
 		$this->redirect_uri = $redirect_uri;
 		$this->acr_values = $acr_values;
 		$this->state_time_limit = $state_time_limit;
@@ -218,7 +229,6 @@ class OpenID_Connect_Generic_Client {
 				'client_secret' => $this->client_secret,
 				'redirect_uri'  => $this->redirect_uri,
 				'grant_type'    => 'authorization_code',
-				'scope'         => $this->scope,
 			),
 			'headers' => array( 'Host' => $host ),
 		);
@@ -267,6 +277,51 @@ class OpenID_Connect_Generic_Client {
 
 		if ( is_wp_error( $response ) ) {
 			$response->add( 'refresh_token', __( 'Refresh token failed.', 'daggerhart-openid-connect-generic' ) );
+		}
+
+		return $response;
+	}
+
+	public function introspect_token( $access_token ) {
+		$request = array(
+			'body' => array(
+				'token'				=> $access_token,
+				'client_id'			=> $this->client_id,	
+				'client_secret'		=> $this->client_secret,
+				'token_type_hint'	=> "access_token",
+			),
+		);
+
+		// Allow modifications to the request.
+		$request = apply_filters( 'openid-connect-generic-alter-request', $request, 'introspect-token' );
+		
+		// Call the server and ask for token details.
+		$this->logger->log( $this->endpoint_introspect, 'introspect_access_token' );
+		$response = wp_remote_post( $this->endpoint_introspect, $request );
+
+		if ( is_wp_error( $response ) ) {
+			$response->add( 'introspect_token', __( 'Introspect token failed.', 'daggerhart-openid-connect-generic' ) );
+		}
+
+		return $response;
+	}
+
+	public function revoke_token( $endpoint_revoke, $refresh_token ) {
+		$request = array(
+			'body' => array(
+				'token'	=> $refresh_token,
+			),
+		);
+
+		// Allow modifications to the request.
+		$request = apply_filters( 'openid-connect-generic-alter-request', $request, 'revoke-token' );
+		
+		// Call the server and ask for token details.
+		$this->logger->log( $endpoint_revoke, 'revoke_refresh_token' );
+		$response = wp_remote_post( $endpoint_revoke, $request );
+
+		if ( is_wp_error( $response ) ) {
+			$response->add( 'revoke_token', __( 'Revoke token failed.', 'daggerhart-openid-connect-generic' ) );
 		}
 
 		return $response;

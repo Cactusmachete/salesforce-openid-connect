@@ -92,6 +92,7 @@ class OpenID_Connect_Generic_Option_Settings {
 		'endpoint_end_session'      => 'OIDC_ENDPOINT_LOGOUT_URL',
 		'endpoint_login'            => 'OIDC_ENDPOINT_LOGIN_URL',
 		'endpoint_token'            => 'OIDC_ENDPOINT_TOKEN_URL',
+		'endpoint_introspect'       => 'OIDC_ENDPOINT_INTROSPECT_URL',
 		'endpoint_userinfo'         => 'OIDC_ENDPOINT_USERINFO_URL',
 		'login_type'                => 'OIDC_LOGIN_TYPE',
 		'scope'                     => 'OIDC_CLIENT_SCOPE',

@@ -266,6 +266,14 @@ class OpenID_Connect_Generic_Settings_Page {
 				'disabled'    => defined( 'OIDC_ENDPOINT_TOKEN_URL' ),
 				'section'     => 'client_settings',
 			),
+			'endpoint_introspect'	=> array(
+				'title'       => __( 'Token Introspection Endpoint URL', 'daggerhart-openid-connect-generic' ),
+				'description' => __( 'Identify provider introspection endpoint.', 'daggerhart-openid-connect-generic' ),
+				'example'     => 'https://example.com/oauth2/introspect',
+				'type'        => 'text',
+				'disabled'    => defined( 'OIDC_ENDPOINT_INTROSPECT_URL' ),
+				'section'     => 'client_settings',
+			),
 			'endpoint_end_session'    => array(
 				'title'       => __( 'End Session Endpoint URL', 'daggerhart-openid-connect-generic' ),
 				'description' => __( 'Identify provider logout endpoint.', 'daggerhart-openid-connect-generic' ),
