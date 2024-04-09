@@ -306,6 +306,27 @@ class OpenID_Connect_Generic_Client {
 		return $response;
 	}
 
+	public function revoke_token( $endpoint_revoke, $refresh_token ) {
+		$request = array(
+			'body' => array(
+				'token'	=> $refresh_token,
+			),
+		);
+
+		// Allow modifications to the request.
+		$request = apply_filters( 'openid-connect-generic-alter-request', $request, 'revoke-token' );
+		
+		// Call the server and ask for token details.
+		$this->logger->log( $endpoint_revoke, 'revoke_refresh_token' );
+		$response = wp_remote_post( $endpoint_revoke, $request );
+
+		if ( is_wp_error( $response ) ) {
+			$response->add( 'revoke_token', __( 'Revoke token failed.', 'daggerhart-openid-connect-generic' ) );
+		}
+
+		return $response;
+	}
+
 	/**
 	 * Extract and decode the token body of a token response
 	 *

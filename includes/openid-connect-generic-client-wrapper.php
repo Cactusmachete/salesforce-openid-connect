@@ -386,7 +386,11 @@ class OpenID_Connect_Generic_Client_Wrapper {
 
 		$claim = $user->get( 'openid-connect-generic-last-id-token-claim' );
 
-		if ( isset( $claim['iss'] ) && 'https://accounts.google.com' == $claim['iss'] ) {
+		if ( isset( $claim['iss'] ) && str_contains($claim["iss"], 'salesforce.com')) {
+			$revoke_response = $this->client->revoke_token($url, $token_response["refresh_token"]);
+			return home_url();
+		}
+		else if ( isset( $claim['iss'] ) && 'https://accounts.google.com' == $claim['iss']) {
 			/*
 			 * Google revoke endpoint
 			 * 1. expects the *access_token* to be passed as "token"
